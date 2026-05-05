@@ -1,0 +1,17 @@
+{
+  "name": "legal-graph",
+  "version": "1.0.0",
+  "description": "Legal Graph Editor - Visual Law System Development Tool",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd FE && npm install",
+    "dev": "concurrently \"npm run dev:be\" \"npm run dev:fe\"",
+    "dev:be": "cd BE && python -m uvicorn main:app --reload",
+    "dev:fe": "cd FE && npm run dev",
+    "build": "cd FE && npm run build",
+    "start": "cd FE && npm run start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
