@@ -2,7 +2,50 @@ import React, { useState } from 'react';
 import { useGraphStore } from '../../stores/graphStore';
 
 const NODE_TYPES = ['law', 'decree', 'circular', 'article', 'clause', 'section'];
-const RELATION_TYPES = ['reference', 'amend', 'replace', 'base_on', 'guide', 'related'];
+
+const DOCUMENT_TYPES = [
+  'constitution',        // hiến pháp
+  'code',                // bộ luật
+  'law',                 // luật
+  'resolution',          // nghị quyết
+  'ordinance',           // pháp lệnh
+  'order',               // lệnh
+  'decision',            // quyết định
+  'decree',              // nghị định
+  'circular',            // thông tư
+  'joint_circular'       // thông tư liên tịch
+];
+
+const CONTENT_TYPES = [
+  'part',
+  'chapter',
+  'section',
+  'article',
+  'clause',
+  'point'
+];
+
+const CONTENT_STRUCTURE = [
+  'part',     // phần
+  'chapter',  // chương
+  'section',  // mục
+  'article',  // điều
+  'clause',   // khoản
+  'point'     // điểm
+];
+
+const RELATION_TYPES = [
+  'detail',        // quy định chi tiết (Nghị định -> Luật)
+  'guide',         // hướng dẫn (Thông tư -> Nghị định)
+  'base_on',       // căn cứ vào
+  'amend',         // sửa đổi
+  'supplement',    // bổ sung
+  'replace',       // thay thế
+  'abolish',       // bãi bỏ
+  'reference',     // dẫn chiếu
+  'related',       // liên quan
+  'consolidate'    // hợp nhất
+];
 
 const NodeDetailPanel: React.FC = () => {
   const { nodes, edges, selectedNodeId, selectedEdgeId, updateNode, updateEdge } = useGraphStore();
