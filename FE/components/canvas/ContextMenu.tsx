@@ -3,13 +3,16 @@ import React, { useEffect, useRef } from 'react';
 interface ContextMenuProps {
   x: number;
   y: number;
-  contextPosition: { x: number; y: number };
-  onCreateNode: (position: { x: number; y: number }, nodeType: string) => void;
+  contextPosition: { x: number; y: number; flowX: number; flowY: number };
+  onCreateNode: (position: { flowX: number; flowY: number }, nodeType: string) => void;
   onDeleteNode: () => void;
   onClose: () => void;
 }
 
-const NODE_TYPES = ['law', 'decree', 'circular', 'article', 'clause', 'section'];
+const NODE_TYPES = [
+  { id: 'custom', label: 'Node' },
+  { id: 'table', label: 'Table' }
+];
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
   x,
@@ -59,8 +62,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         </div>
         {NODE_TYPES.map(type => (
           <button
-            key={type}
-            onClick={() => onCreateNode(contextPosition, type)}
+            key={type.id}
+            onClick={() => onCreateNode(contextPosition, type.id)}
             style={{
               display: 'block',
               width: '100%',
@@ -75,7 +78,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'white')}
           >
-            → {type}
+            → {type.label}
           </button>
         ))}
 

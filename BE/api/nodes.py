@@ -21,8 +21,7 @@ class NodeUpdateSchema(BaseModel):
     x: Optional[float] = None
     y: Optional[float] = None
 
-# In-memory database
-nodes_db = {}
+from db.storage import storage
 
 @router.post("/")
 def create_node(data: NodeCreateSchema):
@@ -39,23 +38,26 @@ def create_node(data: NodeCreateSchema):
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
     }
-    nodes_db[node_id] = node
+    storage.save_node(node_id, node)
     return {"id": node_id, **node}
 
 @router.get("/{node_id}")
 def get_node(node_id: str):
     """Lấy thông tin một node"""
-    if node_id not in nodes_db:
+    nodes = storage.get_nodes()
+    node = next((n for n in nodes if n["id"] == node_id), None)
+    if not node:
         raise HTTPException(status_code=404, detail="Node not found")
-    return nodes_db[node_id]
+    return node
 
 @router.put("/{node_id}")
 def update_node(node_id: str, data: NodeUpdateSchema):
     """Cập nhật thông tin node (tọa độ, nội dung...)"""
-    if node_id not in nodes_db:
+    nodes = storage.get_nodes()
+    node = next((n for n in nodes if n["id"] == node_id), None)
+    if not node:
         raise HTTPException(status_code=404, detail="Node not found")
     
-    node = nodes_db[node_id]
     if data.type is not None:
         node["type"] = data.type
     if data.label is not None:
@@ -68,14 +70,12 @@ def update_node(node_id: str, data: NodeUpdateSchema):
         node["y"] = data.y
     node["updated_at"] = datetime.utcnow().isoformat()
     
+    storage.save_node(node_id, node)
     return node
 
 @router.delete("/{node_id}")
 def delete_node(node_id: str):
     """Xóa node"""
-    if node_id not in nodes_db:
-        raise HTTPException(status_code=404, detail="Node not found")
-    
-    del nodes_db[node_id]
+    storage.delete_node(node_id)
     return {"message": f"Node {node_id} deleted"}
 

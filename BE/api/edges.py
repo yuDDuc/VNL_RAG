@@ -6,17 +6,20 @@ import uuid
 
 router = APIRouter()
 
+from db.storage import storage
+
 class EdgeCreateSchema(BaseModel):
     graph_id: str
     source_node_id: str
     target_node_id: str
-    relation_type: str  # 'reference', 'amend', 'replace', 'base_on', 'guide', 'related'
+    relation_type: str
+    source_handle: Optional[str] = None
+    target_handle: Optional[str] = None
 
 class EdgeUpdateSchema(BaseModel):
     relation_type: Optional[str] = None
-
-# In-memory database
-edges_db = {}
+    source_handle: Optional[str] = None
+    target_handle: Optional[str] = None
 
 @router.post("/")
 def create_edge(data: EdgeCreateSchema):
@@ -28,38 +31,45 @@ def create_edge(data: EdgeCreateSchema):
         "source_node_id": data.source_node_id,
         "target_node_id": data.target_node_id,
         "relation_type": data.relation_type,
+        "source_handle": data.source_handle,
+        "target_handle": data.target_handle,
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
     }
-    edges_db[edge_id] = edge
+    storage.save_edge(edge_id, edge)
     return {"id": edge_id, **edge}
 
 @router.get("/{edge_id}")
 def get_edge(edge_id: str):
     """Lấy thông tin một edge"""
-    if edge_id not in edges_db:
+    edges = storage.get_edges()
+    edge = next((e for e in edges if e["id"] == edge_id), None)
+    if not edge:
         raise HTTPException(status_code=404, detail="Edge not found")
-    return edges_db[edge_id]
+    return edge
 
 @router.put("/{edge_id}")
 def update_edge(edge_id: str, data: EdgeUpdateSchema):
     """Cập nhật loại quan hệ của edge"""
-    if edge_id not in edges_db:
+    edges = storage.get_edges()
+    edge = next((e for e in edges if e["id"] == edge_id), None)
+    if not edge:
         raise HTTPException(status_code=404, detail="Edge not found")
     
-    edge = edges_db[edge_id]
     if data.relation_type is not None:
         edge["relation_type"] = data.relation_type
+    if data.source_handle is not None:
+        edge["source_handle"] = data.source_handle
+    if data.target_handle is not None:
+        edge["target_handle"] = data.target_handle
     edge["updated_at"] = datetime.utcnow().isoformat()
     
+    storage.save_edge(edge_id, edge)
     return edge
 
 @router.delete("/{edge_id}")
 def delete_edge(edge_id: str):
     """Xóa liên kết"""
-    if edge_id not in edges_db:
-        raise HTTPException(status_code=404, detail="Edge not found")
-    
-    del edges_db[edge_id]
+    storage.delete_edge(edge_id)
     return {"message": f"Edge {edge_id} deleted"}
 

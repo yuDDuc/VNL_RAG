@@ -13,6 +13,8 @@ export interface LegalEdge {
   id: string;
   source: string;
   target: string;
+  sourceHandle?: string | null;
+  targetHandle?: string | null;
   label?: string; // 'reference', 'amend', 'replace', etc.
   type?: string;
 }

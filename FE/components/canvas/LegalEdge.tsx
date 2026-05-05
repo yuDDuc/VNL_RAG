@@ -11,8 +11,12 @@ const LegalEdge: React.FC<EdgeProps> = ({
   targetPosition,
   data,
   selected,
+  source,
+  target,
 }) => {
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const isSelfLoop = source === target;
+
+  let [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -21,13 +25,24 @@ const LegalEdge: React.FC<EdgeProps> = ({
     targetPosition,
   });
 
+  if (isSelfLoop) {
+    // Custom round loop path for self-connections
+    const loopSize = 50;
+    // An arc-like path that goes out and back
+    edgePath = `M ${sourceX} ${sourceY} C ${sourceX + loopSize} ${sourceY - loopSize} ${sourceX - loopSize} ${sourceY - loopSize} ${sourceX} ${sourceY}`;
+    labelX = sourceX;
+    labelY = sourceY - loopSize;
+  }
+
   const relationColors: Record<string, string> = {
-    reference: '#2196F3',
-    amend: '#FF9800',
-    replace: '#f44336',
-    base_on: '#9C27B0',
-    guide: '#4CAF50',
-    related: '#757575',
+    'quy định chi tiết': '#2196F3',
+    'hướng dẫn': '#4CAF50',
+    'sửa đổi': '#FF9800',
+    'bổ sung': '#FF5722',
+    'bãi bỏ': '#f44336',
+    'hợp nhất': '#9C27B0',
+    'liên quan': '#757575',
+    'tùy chỉnh': '#607D8B',
   };
 
   const color = data?.label ? relationColors[data.label] || '#757575' : '#757575';
@@ -37,31 +52,46 @@ const LegalEdge: React.FC<EdgeProps> = ({
       <path
         id={id}
         d={edgePath}
-        stroke={selected ? color : '#ccc'}
-        strokeWidth={selected ? 3 : 2}
+        stroke={selected ? color : '#999'}
+        strokeWidth={selected ? 3 : 1.5}
         fill="none"
+        markerEnd="url(#arrowhead)"
         strokeDasharray={data?.label === 'amend' ? '5,5' : 'none'}
         style={{
           transition: 'all 0.2s ease',
+          filter: selected ? `drop-shadow(0 0 5px ${color})` : 'none',
         }}
       />
       {data?.label && (
-        <text
-          x={labelX}
-          y={labelY}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          style={{
-            fontSize: '12px',
-            fill: color,
-            backgroundColor: 'white',
-            fontWeight: 'bold',
-            pointerEvents: 'none',
-            textShadow: '0 0 2px white, 0 0 2px white',
-          }}
+        <foreignObject
+          width={80}
+          height={20}
+          x={labelX - 40}
+          y={labelY - 10}
+          requiredExtensions="http://www.w3.org/1999/xhtml"
         >
-          {data.label}
-        </text>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+          }}>
+            <span style={{
+              fontSize: '10px',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              background: 'rgba(255, 255, 255, 0.8)',
+              color: color,
+              fontWeight: 'bold',
+              border: `1px solid ${color}`,
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            }}>
+              {data.label}
+            </span>
+          </div>
+        </foreignObject>
       )}
     </>
   );

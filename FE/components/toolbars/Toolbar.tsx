@@ -5,7 +5,7 @@ import { downloadJSON, exportToPNG, exportNodesToCSV, exportEdgesToCSV } from '.
 import { graphAPI } from '../../lib/api';
 
 const Toolbar: React.FC = () => {
-  const { graphId, graphName, nodes, edges, setGraphName } = useGraphStore();
+  const { graphId, graphName, nodes, edges, setGraphName, showToast, viewMode, setViewMode } = useGraphStore();
   const { undo, redo, canUndo, canRedo } = useHistoryStore();
   const [isSaving, setIsSaving] = React.useState(false);
 
@@ -18,10 +18,10 @@ const Toolbar: React.FC = () => {
         name: graphName,
         description: `Graph with ${nodes.length} nodes and ${edges.length} edges`,
       });
-      alert('Graph saved successfully!');
+      showToast('Graph saved successfully!');
     } catch (error) {
       console.error('Failed to save graph:', error);
-      alert('Failed to save graph');
+      showToast('Failed to save graph', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -200,6 +200,48 @@ const Toolbar: React.FC = () => {
           }}
         >
           Edges CSV
+        </button>
+      </div>
+
+      {/* View Mode Toggle */}
+      <div style={{
+        display: 'flex',
+        backgroundColor: '#eee',
+        padding: '3px',
+        borderRadius: '6px',
+        marginLeft: '10px',
+      }}>
+        <button
+          onClick={() => setViewMode('canvas')}
+          style={{
+            padding: '4px 10px',
+            border: 'none',
+            borderRadius: '4px',
+            backgroundColor: viewMode === 'canvas' ? 'white' : 'transparent',
+            boxShadow: viewMode === 'canvas' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            color: viewMode === 'canvas' ? '#2196F3' : '#666',
+          }}
+        >
+          🕸️ Graph
+        </button>
+        <button
+          onClick={() => setViewMode('table')}
+          style={{
+            padding: '4px 10px',
+            border: 'none',
+            borderRadius: '4px',
+            backgroundColor: viewMode === 'table' ? 'white' : 'transparent',
+            boxShadow: viewMode === 'table' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            color: viewMode === 'table' ? '#2196F3' : '#666',
+          }}
+        >
+          📊 Table
         </button>
       </div>
 

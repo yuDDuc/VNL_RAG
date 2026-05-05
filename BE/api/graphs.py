@@ -32,6 +32,8 @@ class LegalEdgeSchema(BaseModel):
     source_node_id: str
     target_node_id: str
     relation_type: str
+    source_handle: Optional[str] = None
+    target_handle: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -56,25 +58,23 @@ class GraphDetailSchema(BaseModel):
     class Config:
         from_attributes = True
 
-# In-memory database (replace with real DB later)
-graphs_db = {}
-nodes_db = {}
-edges_db = {}
+from db.storage import storage
 
 @router.get("/")
 def get_all_graphs():
     """Lấy danh sách tất cả graphs"""
+    graphs = storage.get_graphs()
     return {
         "graphs": [
             {
-                "id": gid,
+                "id": g["id"],
                 "name": g.get("name"),
                 "description": g.get("description"),
                 "created_at": g.get("created_at"),
-                "node_count": len([n for n in nodes_db.values() if n.get("graph_id") == gid]),
-                "edge_count": len([e for e in edges_db.values() if e.get("graph_id") == gid]),
+                "node_count": len(storage.get_nodes(g["id"])),
+                "edge_count": len(storage.get_edges(g["id"])),
             }
-            for gid, g in graphs_db.items()
+            for g in graphs
         ]
     }
 
@@ -89,18 +89,18 @@ def create_graph(data: GraphCreateSchema):
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
     }
-    graphs_db[graph_id] = graph
+    storage.save_graph(graph_id, graph)
     return {"id": graph_id, **graph}
 
 @router.get("/{graph_id}")
 def get_graph(graph_id: str):
     """Lấy chi tiết một graph (bao gồm nodes, edges)"""
-    if graph_id not in graphs_db:
+    graph = storage.get_graph(graph_id)
+    if not graph:
         raise HTTPException(status_code=404, detail="Graph not found")
     
-    graph = graphs_db[graph_id]
-    nodes = [n for n in nodes_db.values() if n.get("graph_id") == graph_id]
-    edges = [e for e in edges_db.values() if e.get("graph_id") == graph_id]
+    nodes = storage.get_nodes(graph_id)
+    edges = storage.get_edges(graph_id)
     
     return {
         **graph,
@@ -111,29 +111,25 @@ def get_graph(graph_id: str):
 @router.put("/{graph_id}")
 def update_graph(graph_id: str, data: GraphUpdateSchema):
     """Cập nhật thông tin graph"""
-    if graph_id not in graphs_db:
+    graph = storage.get_graph(graph_id)
+    if not graph:
         raise HTTPException(status_code=404, detail="Graph not found")
     
-    graph = graphs_db[graph_id]
     if data.name:
         graph["name"] = data.name
     if data.description is not None:
         graph["description"] = data.description
     graph["updated_at"] = datetime.utcnow().isoformat()
     
+    storage.save_graph(graph_id, graph)
     return graph
 
 @router.delete("/{graph_id}")
 def delete_graph(graph_id: str):
     """Xóa graph và tất cả nodes/edges liên quan"""
-    if graph_id not in graphs_db:
+    if not storage.get_graph(graph_id):
         raise HTTPException(status_code=404, detail="Graph not found")
     
-    # Delete all nodes and edges related to this graph
-    nodes_db.clear()  # Simplified: delete all.
-    edges_db.clear()  # Simplified: delete all
-    # In real app, filter by graph_id
-    
-    del graphs_db[graph_id]
+    storage.delete_graph(graph_id)
     return {"message": f"Graph {graph_id} deleted"}
 

@@ -29,6 +29,14 @@ interface GraphState {
   
   // Batch operations
   setNodesAndEdges: (nodes: LegalNode[], edges: LegalEdge[]) => void;
+  
+  // Toast notifications
+  toast: { message: string; type: 'success' | 'error' } | null;
+  showToast: (message: string, type?: 'success' | 'error') => void;
+
+  // View mode
+  viewMode: 'canvas' | 'table';
+  setViewMode: (mode: 'canvas' | 'table') => void;
 }
 
 export const useGraphStore = create<GraphState>((set) => ({
@@ -38,6 +46,15 @@ export const useGraphStore = create<GraphState>((set) => ({
   edges: [],
   selectedNodeId: null,
   selectedEdgeId: null,
+  toast: null,
+  viewMode: 'canvas',
+
+  setViewMode: (mode) => set({ viewMode: mode }),
+
+  showToast: (message, type = 'success') => {
+    set({ toast: { message, type } });
+    setTimeout(() => set({ toast: null }), 3000);
+  },
 
   setGraph: (id, name, nodes, edges) => set({
     graphId: id,

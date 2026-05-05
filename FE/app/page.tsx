@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { graphAPI } from '../lib/api';
+import { useGraphStore } from '../stores/graphStore';
+import Toast from '../components/Toast';
 
 interface GraphListItem {
   id: string;
@@ -17,6 +19,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [newGraphName, setNewGraphName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const { showToast } = useGraphStore();
 
   useEffect(() => {
     fetchGraphs();
@@ -36,7 +39,7 @@ export default function Home() {
 
   const handleCreateGraph = async () => {
     if (!newGraphName.trim()) {
-      alert('Please enter a graph name');
+      showToast('Please enter a graph name', 'error');
       return;
     }
 
@@ -48,14 +51,17 @@ export default function Home() {
       });
       
       setNewGraphName('');
+      showToast('Graph created successfully!');
       
       // Redirect to graph editor
       if (typeof window !== 'undefined') {
-        window.location.href = `/graph/${newGraph.id}`;
+        setTimeout(() => {
+          window.location.href = `/graph/${newGraph.id}`;
+        }, 1000);
       }
     } catch (error) {
       console.error('Failed to create graph:', error);
-      alert('Failed to create graph');
+      showToast('Failed to create graph', 'error');
     } finally {
       setIsCreating(false);
     }
@@ -69,9 +75,10 @@ export default function Home() {
     try {
       await graphAPI.delete(id);
       setGraphs(graphs.filter(g => g.id !== id));
+      showToast('Graph deleted successfully!');
     } catch (error) {
       console.error('Failed to delete graph:', error);
-      alert('Failed to delete graph');
+      showToast('Failed to delete graph', 'error');
     }
   };
 
@@ -212,7 +219,6 @@ export default function Home() {
                   }}>
                     {graph.description || 'No description'}
                   </p>
-
                   <div style={{
                     display: 'flex',
                     gap: '10px',
@@ -247,7 +253,10 @@ export default function Home() {
                       Edit
                     </Link>
                     <button
-                      onClick={() => handleDeleteGraph(graph.id, graph.name)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteGraph(graph.id, graph.name);
+                      }}
                       style={{
                         padding: '8px 12px',
                         backgroundColor: '#f44336',
@@ -281,6 +290,7 @@ export default function Home() {
       }}>
         <p>Legal Graph Editor v1.0 | Visual Law System Development Tool</p>
       </footer>
+      <Toast />
     </div>
   );
 }

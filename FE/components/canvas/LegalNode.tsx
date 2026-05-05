@@ -10,7 +10,7 @@ interface LegalNodeProps {
     size?: number;
   };
   id: string;
-  selected?: boolean;
+  selected: boolean;
   isConnecting?: boolean;
 }
 
@@ -25,6 +25,7 @@ const LegalNode: React.FC<LegalNodeProps> = ({ data, id, selected }) => {
     article: '#9C27B0',
     clause: '#F44336',
     section: '#00BCD4',
+    custom: '#9E9E9E', // Gray for generic node
   };
 
   const color = data.type ? typeColors[data.type] || '#757575' : '#757575';
@@ -54,7 +55,12 @@ const LegalNode: React.FC<LegalNodeProps> = ({ data, id, selected }) => {
         wordBreak: 'break-word',
       }}
     >
-      <Handle type="target" position={Position.Top} />
+      {/* Handles at 4 cardinal points, both source and target to allow any connection */}
+      <Handle type="source" position={Position.Top} id="top" style={{ background: color, width: '8px', height: '8px' }} />
+      <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: color, width: '8px', height: '8px' }} />
+      <Handle type="source" position={Position.Left} id="left" style={{ background: color, width: '8px', height: '8px' }} />
+      <Handle type="source" position={Position.Right} id="right" style={{ background: color, width: '8px', height: '8px' }} />
+
       <div style={{ lineHeight: '1.2' }}>
         <div>{data.label}</div>
         {data.type && nodeSize > 60 && (
@@ -63,7 +69,6 @@ const LegalNode: React.FC<LegalNodeProps> = ({ data, id, selected }) => {
           </div>
         )}
       </div>
-      <Handle type="source" position={Position.Bottom} />
     </div>
   );
 };

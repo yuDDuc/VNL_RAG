@@ -39,15 +39,6 @@ export const useKeyboardShortcuts = (handlers: ShortcutHandlers) => {
         }
       }
 
-      // Delete key: Delete selected node
-      if (event.key === 'Delete' && handlers.selectedNodeId) {
-        event.preventDefault();
-        deleteNode(handlers.selectedNodeId);
-        if (handlers.onDelete) {
-          handlers.onDelete(handlers.selectedNodeId);
-        }
-      }
-
       // Ctrl/Cmd + S: Save
       if (isMeta && event.key === 's') {
         event.preventDefault();
