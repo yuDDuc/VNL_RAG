@@ -58,7 +58,7 @@ cd legal-graph
 cd BE
 python3 -m venv venv
 source venv/bin/activate
-pip install -r ../requirements.txt
+pip install -r requirements.txt
 ```
 
 Tạo file chạy backend bằng PM2 (Lưu ý: Gọi trực tiếp python trong venv để tránh lỗi khi VPS khởi động lại):
@@ -73,7 +73,7 @@ pm2 start venv/bin/python --name legal-graph-be -- main.py
 
 Quay lại thư mục chính:
 ```bash
-cd ../FE
+cd FE/
 ```
 
 Cấu hình API URL (Tạo file `.env.local` nếu chưa có):

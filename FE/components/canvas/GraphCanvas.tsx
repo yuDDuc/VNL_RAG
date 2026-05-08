@@ -184,7 +184,7 @@ const GraphCanvasContent: React.FC = () => {
         x: e.clientX,
         y: e.clientY,
       });
-      
+
       setContextMenu({
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
@@ -230,7 +230,7 @@ const GraphCanvasContent: React.FC = () => {
     setContextMenu(null);
     const selectedNodes = getNodes().filter(n => n.selected);
     const selectedEdges = getEdges().filter(e => e.selected);
-    
+
     if (selectedNodes.length === 0 && selectedEdges.length === 0) return;
 
     if (window.confirm(`Delete ${selectedNodes.length} nodes and ${selectedEdges.length} edges?`)) {
@@ -356,7 +356,7 @@ const GraphCanvasContent: React.FC = () => {
           }
         }
       }
-      
+
       // Delete (Delete key)
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const selectedNodes = getNodes().filter(n => n.selected);

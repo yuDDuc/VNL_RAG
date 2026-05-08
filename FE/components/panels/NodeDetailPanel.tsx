@@ -234,7 +234,7 @@ const NodeDetailPanel: React.FC = () => {
               <option value="orange_buffer">Secondary Buffer (Orange)</option>
               <option value="result">Result (Purple)</option>
               <option value="teleport">Teleport (Red)</option>
-              <option value="section">Section (Cyan)</option>
+              <option value="section">OnWorking (Cyan)</option>
               <option value="table">Table 1D (List)</option>
               <option value="table2d">Table 2D (Matrix)</option>
             </select>

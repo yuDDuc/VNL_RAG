@@ -249,7 +249,7 @@ export default function GraphPage() {
                         <div>🟠 Buffer - Intermediate state</div>
                         <div>🟣 Result - Final output</div>
                         <div>🔴 Teleport - Jump/Link</div>
-                        <div>🔷 Section - Subsection</div>
+                        <div>🔷 OnWorking - Subsection</div>
                       </div>
                     </div>
 

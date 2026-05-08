@@ -157,8 +157,17 @@ const DataTable: React.FC = () => {
                       onChange={(e) => handleNodeChange(node.id, 'type', e.target.value)}
                       style={inputStyle}
                     >
-                      {['law', 'decree', 'circular', 'article', 'clause', 'section', 'table', 'custom'].map(t => (
-                        <option key={t} value={t}>{t}</option>
+                      {[
+                        { id: 'law', label: 'Law' },
+                        { id: 'decree', label: 'Decree' },
+                        { id: 'circular', label: 'Circular' },
+                        { id: 'article', label: 'Article' },
+                        { id: 'clause', label: 'Clause' },
+                        { id: 'section', label: 'OnWorking' },
+                        { id: 'table', label: 'Table' },
+                        { id: 'custom', label: 'Generic' }
+                      ].map(t => (
+                        <option key={t.id} value={t.id}>{t.label}</option>
                       ))}
                     </select>
                   </td>
