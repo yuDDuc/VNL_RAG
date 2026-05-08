@@ -4,8 +4,14 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 class JSONStorage:
-    def __init__(self, file_path: str = "database.json"):
-        self.file_path = file_path
+    def __init__(self, file_path: str = None):
+        # Use environment variable DATABASE_PATH if provided, otherwise default to a file next to this module
+        if file_path:
+            self.file_path = file_path
+        else:
+            # Resolve path relative to this storage module
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            self.file_path = os.path.join(base_dir, "database.json")
         self.data = {
             "graphs": {},
             "nodes": {},
