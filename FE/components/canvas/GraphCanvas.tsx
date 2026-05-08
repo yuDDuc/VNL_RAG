@@ -51,7 +51,7 @@ const GraphCanvasContent: React.FC = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
-  const { getNodes, getEdges, deleteElements } = useReactFlow();
+  const { getNodes, getEdges } = useReactFlow();
 
   // Sync store to nodes/edges
   useEffect(() => {
