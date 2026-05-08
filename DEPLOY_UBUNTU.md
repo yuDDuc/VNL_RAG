@@ -52,9 +52,9 @@ source venv/bin/activate
 pip install -r ../requirements.txt
 ```
 
-Tạo file chạy backend bằng PM2:
+Tạo file chạy backend bằng PM2 (Lưu ý: Gọi trực tiếp python trong venv để tránh lỗi khi VPS khởi động lại):
 ```bash
-pm2 start "python3 main.py" --name legal-graph-be
+pm2 start "venv/bin/python main.py" --name legal-graph-be
 ```
 *Mặc định backend sẽ chạy trên cổng 8000.*
 
@@ -69,7 +69,7 @@ cd ../FE
 
 Cấu hình API URL (Tạo file `.env.local` nếu chưa có):
 ```bash
-echo "NEXT_PUBLIC_API_URL=http://<IP_CUA_VPS>:8000" > .env.local
+echo "NEXT_PUBLIC_API_URL=http://<IP_CUA_VPS>:8000/api" > .env.local
 ```
 
 Cài đặt và Build:
@@ -78,9 +78,9 @@ npm install
 npm run build
 ```
 
-Chạy frontend bằng PM2:
+Chạy frontend bằng PM2 (Chuẩn cách chạy npm qua PM2):
 ```bash
-pm2 start "npm run start" --name legal-graph-fe
+pm2 start npm --name "legal-graph-fe" -- start
 ```
 *Mặc định frontend sẽ chạy trên cổng 3000.*
 
