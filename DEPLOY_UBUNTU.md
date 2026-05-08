@@ -37,7 +37,7 @@ sudo npm install -g pm2
 ## 3. Tải mã nguồn
 
 ```bash
-git clone <URL_CUA_BAN> legal-graph
+git clone https://github.com/yuDDuc/VNL_RAG.git legal-graph
 cd legal-graph
 ```
 
@@ -54,7 +54,7 @@ pip install -r ../requirements.txt
 
 Tạo file chạy backend bằng PM2 (Lưu ý: Gọi trực tiếp python trong venv để tránh lỗi khi VPS khởi động lại):
 ```bash
-pm2 start "venv/bin/python main.py" --name legal-graph-be
+pm2 start venv/bin/python --name legal-graph-be -- main.py
 ```
 *Mặc định backend sẽ chạy trên cổng 8000.*
 
