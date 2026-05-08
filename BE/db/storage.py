@@ -10,7 +10,8 @@ class JSONStorage:
             self.file_path = file_path
         else:
             # Resolve path relative to this storage module
-            base_dir = os.path.dirname(os.path.abspath(__file__))
+            # Resolve path: go up one level from BE/db/ to BE/
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             self.file_path = os.path.join(base_dir, "database.json")
         self.data = {
             "graphs": {},
