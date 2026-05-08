@@ -9,8 +9,7 @@ class JSONStorage:
         if file_path:
             self.file_path = file_path
         else:
-            # Resolve path relative to this storage module
-            # Resolve path: go up one level from BE/db/ to BE/
+            # Lưu file database ở BE/database.json (1 cấp trên thư mục db)
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             self.file_path = os.path.join(base_dir, "database.json")
         self.data = {
