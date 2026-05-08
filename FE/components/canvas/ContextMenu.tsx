@@ -11,7 +11,8 @@ interface ContextMenuProps {
 
 const NODE_TYPES = [
   { id: 'custom', label: 'Node' },
-  { id: 'table', label: 'Table' }
+  { id: 'table', label: 'Table 1D' },
+  { id: 'table2d', label: 'Table 2D' }
 ];
 
 const ContextMenu: React.FC<ContextMenuProps> = ({

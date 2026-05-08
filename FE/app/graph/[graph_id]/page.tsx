@@ -21,6 +21,7 @@ export default function GraphPage() {
   const {
     setGraph,
     selectedNodeId,
+    selectedEdgeId,
     viewMode,
   } = useGraphStore();
 
@@ -77,16 +78,25 @@ export default function GraphPage() {
       }
     },
     onSave: () => {
-      const saveBtn = document.querySelector('button:has(span:contains("Save"))') ||
-        Array.from(document.querySelectorAll('button')).find(b => b.textContent?.includes('Save'));
+      const saveBtn = Array.from(document.querySelectorAll('button')).find(b =>
+        b.textContent?.includes('Save') || b.getAttribute('aria-label')?.includes('Save')
+      );
       if (saveBtn) (saveBtn as HTMLButtonElement).click();
     },
   });
+
 
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [rightPanelWidth, setRightPanelWidth] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
+
+  // Auto-open right panel when something is selected
+  useEffect(() => {
+    if (selectedNodeId || selectedEdgeId) {
+      setRightPanelOpen(true);
+    }
+  }, [selectedNodeId, selectedEdgeId]);
 
   const startResizing = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -234,11 +244,11 @@ export default function GraphPage() {
                     <div style={{ marginBottom: '10px' }}>
                       <strong>🎨 Node Types</strong>
                       <div style={{ marginTop: '5px', fontSize: '11px' }}>
-                        <div>🟢 Law - National law</div>
+                        <div>🟢 Boolean - Logic/Condition</div>
                         <div>🔵 Decree - Government decree</div>
-                        <div>🟠 Circular - Ministry circular</div>
-                        <div>🟣 Article - Main article</div>
-                        <div>🔴 Clause - Detailed clause</div>
+                        <div>🟠 Buffer - Intermediate state</div>
+                        <div>🟣 Result - Final output</div>
+                        <div>🔴 Teleport - Jump/Link</div>
                         <div>🔷 Section - Subsection</div>
                       </div>
                     </div>

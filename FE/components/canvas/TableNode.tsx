@@ -6,6 +6,7 @@ interface TableNodeProps {
   id: string;
   data: {
     label: string;
+    type?: string;
     content?: string;
     size?: number;
   };
@@ -25,7 +26,8 @@ const TableNode: React.FC<TableNodeProps> = ({ id, data, selected }) => {
     console.error('Failed to parse table data:', e);
   }
 
-  const color = '#607D8B'; // Blue Grey
+  const is2D = data.type === 'table2d';
+  const color = is2D ? '#673AB7' : '#607D8B'; // Deep Purple for 2D, Blue Grey for 1D
 
   return (
     <div
@@ -50,9 +52,9 @@ const TableNode: React.FC<TableNodeProps> = ({ id, data, selected }) => {
         fontWeight: 'bold',
         textAlign: 'center',
       }}>
-        {data.label}
+        {data.label} {is2D ? '(2D)' : ''}
       </div>
-      
+
       <div style={{ flex: 1, padding: '4px', overflow: 'hidden' }}>
         <table style={{
           width: '100%',
@@ -62,7 +64,14 @@ const TableNode: React.FC<TableNodeProps> = ({ id, data, selected }) => {
           <thead>
             <tr>
               {tableData.headers.map((h, i) => (
-                <th key={i} style={{ border: '1px solid #ddd', padding: '2px', backgroundColor: '#f5f5f5' }}>{h}</th>
+                <th key={i} style={{
+                  border: '1px solid #ddd',
+                  padding: '2px',
+                  backgroundColor: is2D ? '#EDE7F6' : '#f5f5f5',
+                  color: is2D ? '#512DA8' : 'inherit'
+                }}>
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
@@ -70,7 +79,15 @@ const TableNode: React.FC<TableNodeProps> = ({ id, data, selected }) => {
             {tableData.rows.slice(0, 5).map((row, ri) => (
               <tr key={ri}>
                 {row.map((cell, ci) => (
-                  <td key={ci} style={{ border: '1px solid #ddd', padding: '2px' }}>{cell}</td>
+                  <td key={ci} style={{
+                    border: '1px solid #ddd',
+                    padding: '2px',
+                    backgroundColor: (is2D && ci === 0) ? (is2D ? '#EDE7F6' : '#f5f5f5') : 'transparent',
+                    fontWeight: (is2D && ci === 0) ? 'bold' : 'normal',
+                    color: (is2D && ci === 0) ? '#512DA8' : 'inherit'
+                  }}>
+                    {cell}
+                  </td>
                 ))}
               </tr>
             ))}

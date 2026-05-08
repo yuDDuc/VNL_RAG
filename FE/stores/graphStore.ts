@@ -18,6 +18,7 @@ interface GraphState {
   // Node operations
   addNode: (node: LegalNode) => void;
   updateNode: (id: string, data: Partial<LegalNode>) => void;
+  updateNodes: (updates: { id: string, data: Partial<LegalNode> }[]) => void;
   deleteNode: (id: string) => void;
   selectNode: (id: string | null) => void;
   
@@ -86,6 +87,20 @@ export const useGraphStore = create<GraphState>((set) => ({
   updateNode: (id, data) => set((state) => {
     const newState = {
       nodes: state.nodes.map(n => n.id === id ? { ...n, ...data } : n),
+      edges: state.edges,
+    };
+    useHistoryStore.getState().saveState(newState.nodes, newState.edges);
+    return newState;
+  }),
+
+  updateNodes: (updates) => set((state) => {
+    const updateMap = new Map(updates.map(u => [u.id, u.data]));
+    const newNodes = state.nodes.map(n => {
+      const update = updateMap.get(n.id);
+      return update ? { ...n, ...update } : n;
+    });
+    const newState = {
+      nodes: newNodes,
       edges: state.edges,
     };
     useHistoryStore.getState().saveState(newState.nodes, newState.edges);

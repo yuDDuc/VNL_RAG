@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { useGraphStore } from '../../stores/graphStore';
 import { nodeAPI, edgeAPI } from '../../lib/api';
 
-const RELATION_TYPES = ['quy định chi tiết', 'hướng dẫn', 'sửa đổi', 'bổ sung', 'bãi bỏ', 'hợp nhất', 'liên quan', 'tùy chỉnh'];
+const RELATION_TYPES = ['2 way', 'buffer', 'sửa đổi', 'bổ sung', 'bãi bỏ', 'hợp nhất', 'liên quan', 'tùy chỉnh'];
 
 const NodeDetailPanel: React.FC = () => {
-  const { 
-    nodes, 
-    edges, 
-    selectedNodeId, 
-    selectedEdgeId, 
-    updateNode, 
-    updateEdge, 
-    deleteNode, 
+  const {
+    nodes,
+    edges,
+    selectedNodeId,
+    selectedEdgeId,
+    updateNode,
+    updateEdge,
+    deleteNode,
     deleteEdge,
     showToast
   } = useGraphStore();
@@ -24,7 +24,7 @@ const NodeDetailPanel: React.FC = () => {
   const [nodeContent, setNodeContent] = useState(selectedNode?.data.content || '');
   const [nodeType, setNodeType] = useState(selectedNode?.type || 'article');
   const [nodeSize, setNodeSize] = useState(selectedNode?.data.size || 80);
-  const [tableData, setTableData] = useState<{headers: string[], rows: string[][]}>({
+  const [tableData, setTableData] = useState<{ headers: string[], rows: string[][] }>({
     headers: ['Column 1', 'Column 2'],
     rows: [['Value 1', 'Value 2']]
   });
@@ -82,7 +82,7 @@ const NodeDetailPanel: React.FC = () => {
           content: nodeContent,
           type: nodeType,
         });
-        
+
         updateNode(selectedNodeId, {
           data: {
             label: nodeLabel,
@@ -146,7 +146,7 @@ const NodeDetailPanel: React.FC = () => {
       setNodeType(selectedNode.type);
       setNodeSize(selectedNode.data.size || 80);
 
-      if (selectedNode.type === 'table') {
+      if (selectedNode.type === 'table' || selectedNode.type === 'table2d') {
         try {
           if (selectedNode.data.content && selectedNode.data.content.startsWith('{')) {
             setTableData(JSON.parse(selectedNode.data.content));
@@ -229,13 +229,14 @@ const NodeDetailPanel: React.FC = () => {
               }}
             >
               <option value="custom">Generic Node</option>
-              <option value="law">Law (Green)</option>
-              <option value="decree">Decree (Blue)</option>
-              <option value="circular">Circular (Orange)</option>
-              <option value="article">Article (Purple)</option>
-              <option value="clause">Clause (Red)</option>
+              <option value="2 way edge">2 way edge (Green)</option>
+              <option value="buffer">Buffer (Blue)</option>
+              <option value="orange_buffer">Secondary Buffer (Orange)</option>
+              <option value="result">Result (Purple)</option>
+              <option value="teleport">Teleport (Red)</option>
               <option value="section">Section (Cyan)</option>
-              <option value="table">Table (Spreadsheet)</option>
+              <option value="table">Table 1D (List)</option>
+              <option value="table2d">Table 2D (Matrix)</option>
             </select>
           </div>
 
@@ -263,7 +264,7 @@ const NodeDetailPanel: React.FC = () => {
             <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold' }}>
               Content
             </label>
-            {nodeType === 'table' ? (
+            {(nodeType === 'table' || nodeType === 'table2d') ? (
               <div style={{
                 border: '1px solid #ccc',
                 borderRadius: '4px',
@@ -274,7 +275,7 @@ const NodeDetailPanel: React.FC = () => {
                   <button onClick={addRow} style={tableBtnStyle}>+ Row</button>
                   <button onClick={addColumn} style={tableBtnStyle}>+ Col</button>
                 </div>
-                
+
                 <div style={{ overflowX: 'auto', maxHeight: '300px' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                     <thead>
@@ -382,7 +383,7 @@ const NodeDetailPanel: React.FC = () => {
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>
               Edge Details
             </h3>
-            <button 
+            <button
               onClick={() => useGraphStore.getState().selectEdge(null)}
               style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '18px', color: '#999' }}
             >

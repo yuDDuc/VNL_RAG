@@ -35,8 +35,10 @@ const LegalEdge: React.FC<EdgeProps> = ({
   }
 
   const relationColors: Record<string, string> = {
-    'quy định chi tiết': '#2196F3',
+    '2 way': '#4CAF50',
+    'buffer': '#2196F3',
     'hướng dẫn': '#4CAF50',
+    'quy định chi tiết': '#2196F3',
     'sửa đổi': '#FF9800',
     'bổ sung': '#FF5722',
     'bãi bỏ': '#f44336',
@@ -46,9 +48,18 @@ const LegalEdge: React.FC<EdgeProps> = ({
   };
 
   const color = data?.label ? relationColors[data.label] || '#757575' : '#757575';
+  const isBidirectional = data?.label === '2 way';
 
   return (
     <>
+      {/* Interaction path - wider invisible path to make clicking easier */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        style={{ cursor: 'pointer' }}
+      />
       <path
         id={id}
         d={edgePath}
@@ -56,10 +67,12 @@ const LegalEdge: React.FC<EdgeProps> = ({
         strokeWidth={selected ? 3 : 1.5}
         fill="none"
         markerEnd="url(#arrowhead)"
+        markerStart={isBidirectional ? "url(#arrowhead-start)" : "none"}
         strokeDasharray={data?.label === 'amend' ? '5,5' : 'none'}
         style={{
           transition: 'all 0.2s ease',
           filter: selected ? `drop-shadow(0 0 5px ${color})` : 'none',
+          pointerEvents: 'none', // Path itself shouldn't capture events, let interaction path do it
         }}
       />
       {data?.label && (

@@ -19,13 +19,15 @@ const LegalNode: React.FC<LegalNodeProps> = ({ data, id, selected }) => {
   const nodeSize = data.size || 80; // Mặc định 80px
 
   const typeColors: Record<string, string> = {
-    law: '#4CAF50',
-    decree: '#2196F3',
-    circular: '#FF9800',
-    article: '#9C27B0',
-    clause: '#F44336',
-    section: '#00BCD4',
-    custom: '#9E9E9E', // Gray for generic node
+    '2 way edge': '#4CAF50', // Green
+    'boolean': '#4CAF50',    // Backwards compatibility
+    'buffer': '#2196F3',     // Blue (User requested Blue to be Buffer)
+    'decree': '#2196F3',     // Backwards compatibility
+    'orange_buffer': '#FF9800', // Moving the old orange buffer here
+    'result': '#9C27B0',     // Purple
+    'teleport': '#F44336',   // Red
+    'section': '#00BCD4',
+    'custom': '#9E9E9E',
   };
 
   const color = data.type ? typeColors[data.type] || '#757575' : '#757575';

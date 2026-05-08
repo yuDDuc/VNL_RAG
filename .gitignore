@@ -1,4 +1,18 @@
-# Python
+# --- General ---
+.DS_Store
+Thumbs.db
+*.log
+*~
+*.swp
+*.swo
+
+# --- IDEs / Editors ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Python ---
 __pycache__/
 *.py[cod]
 *$py.class
@@ -25,29 +39,17 @@ MANIFEST
 venv/
 ENV/
 env/
-.vscode/
-.idea/
-*.log
 
-# Frontend
+# --- Node / Frontend ---
 node_modules/
 .next/
 out/
-build/
-dist/
-.DS_Store
 .env.local
 .env.*.local
-*.swp
-*.swo
-*~
+FE/node_modules/
+FE/.next/
+FE/out/
 
-# IDE
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-
-# OS
-.DS_Store
-Thumbs.db
+# --- Application Specific ---
+BE/database.json
+BE/legal_graph.db

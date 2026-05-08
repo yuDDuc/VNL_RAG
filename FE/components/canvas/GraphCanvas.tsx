@@ -40,6 +40,7 @@ const GraphCanvasContent: React.FC = () => {
     selectNode,
     selectEdge,
     updateNode,
+    updateNodes,
     selectedNodeId,
     selectedEdgeId,
     showToast,
@@ -51,31 +52,41 @@ const GraphCanvasContent: React.FC = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
+  const { getNodes, getEdges, deleteElements } = useReactFlow();
+
   // Sync store to nodes/edges
   useEffect(() => {
-    const newNodes = storeNodes.map(node => ({
-      id: node.id,
-      data: { ...node.data, type: node.type },
-      position: node.position,
-      type: node.type === 'table' ? 'tableNode' : 'legalNode',
-      selected: node.id === selectedNodeId,
-    }));
-    setNodes(newNodes);
+    setNodes((nds) => {
+      return storeNodes.map(node => {
+        const existing = nds.find((n) => n.id === node.id);
+        return {
+          id: node.id,
+          data: { ...node.data, type: node.type },
+          position: node.position,
+          type: (node.type === 'table' || node.type === 'table2d') ? 'tableNode' : 'legalNode',
+          selected: node.id === selectedNodeId || (existing ? existing.selected : false),
+        };
+      });
+    });
   }, [storeNodes, selectedNodeId, setNodes]);
 
   useEffect(() => {
-    const newEdges = storeEdges.map(edge => ({
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      sourceHandle: edge.sourceHandle,
-      targetHandle: edge.targetHandle,
-      label: edge.label,
-      data: { label: edge.label },
-      type: 'legalEdge',
-      selected: edge.id === selectedEdgeId,
-    }));
-    setEdges(newEdges);
+    setEdges((eds) => {
+      return storeEdges.map(edge => {
+        const existing = eds.find((e) => e.id === edge.id);
+        return {
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          sourceHandle: edge.sourceHandle,
+          targetHandle: edge.targetHandle,
+          label: edge.label,
+          data: { label: edge.label },
+          type: 'legalEdge',
+          selected: edge.id === selectedEdgeId || (existing ? existing.selected : false),
+        };
+      });
+    });
   }, [storeEdges, selectedEdgeId, setEdges]);
 
   const onConnect = useCallback(
@@ -165,6 +176,8 @@ const GraphCanvasContent: React.FC = () => {
   );
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    // If it's a drag (not a simple click), don't show menu
+    // But for now, we'll keep it simple
     e.preventDefault();
     if (canvasRef.current) {
       const rect = canvasRef.current.getBoundingClientRect();
@@ -216,34 +229,148 @@ const GraphCanvasContent: React.FC = () => {
 
   const handleDeleteNode = async () => {
     setContextMenu(null);
-    if (selectedNodeId) {
-      const node = storeNodes.find(n => n.id === selectedNodeId);
-      if (node && window.confirm(`Delete node "${node.data.label}"?`)) {
-        try {
-          await nodeAPI.delete(selectedNodeId);
-          const { deleteNode } = useGraphStore.getState();
-          deleteNode(selectedNodeId);
-        } catch (error) {
-          console.error('Failed to delete node:', error);
-        }
-      }
+    const selectedNodes = getNodes().filter(n => n.selected);
+    const selectedEdges = getEdges().filter(e => e.selected);
+    
+    if (selectedNodes.length === 0 && selectedEdges.length === 0) return;
+
+    if (window.confirm(`Delete ${selectedNodes.length} nodes and ${selectedEdges.length} edges?`)) {
+      await onNodesDelete(selectedNodes);
+      await onEdgesDelete(selectedEdges);
     }
   };
 
   const onNodeDragStop = useCallback(
     async (_: any, node: Node) => {
-      updateNode(node.id, { position: node.position });
-      try {
-        await nodeAPI.update(node.id, {
-          x: node.position.x,
-          y: node.position.y,
-        });
-      } catch (error) {
-        console.error('Failed to update node position:', error);
+      // If multiple nodes were dragged, update them all
+      const selectedNodes = getNodes().filter(n => n.selected);
+      const nodesToUpdate = selectedNodes.length > 1 ? selectedNodes : [node];
+
+      // Update store atomically to avoid sync conflicts
+      const updates = nodesToUpdate.map(n => ({
+        id: n.id,
+        data: { position: n.position }
+      }));
+      updateNodes(updates);
+
+      // Update API
+      for (const n of nodesToUpdate) {
+        try {
+          await nodeAPI.update(n.id, {
+            x: n.position.x,
+            y: n.position.y,
+          });
+        } catch (error) {
+          console.error(`Failed to update node ${n.id} position:`, error);
+        }
       }
     },
-    [updateNode]
+    [updateNodes, getNodes]
   );
+
+  // Keyboard Shortcuts (Copy, Paste, Cut)
+  const clipboard = useRef<{ type: string; label: string; content: string } | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      // Don't trigger if typing in an input/textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const { selectedNodeId, nodes: storeNodes, graphId } = useGraphStore.getState();
+      if (!graphId) return;
+
+      // Copy (Ctrl+C)
+      if (e.ctrlKey && e.key === 'c') {
+        if (selectedNodeId) {
+          const node = storeNodes.find(n => n.id === selectedNodeId);
+          if (node) {
+            clipboard.current = {
+              type: node.type,
+              label: node.data.label,
+              content: node.data.content || '',
+            };
+            showToast(`Copied: ${node.data.label}`);
+          }
+        }
+      }
+
+      // Cut (Ctrl+X)
+      if (e.ctrlKey && e.key === 'x') {
+        if (selectedNodeId) {
+          const node = storeNodes.find(n => n.id === selectedNodeId);
+          if (node) {
+            clipboard.current = {
+              type: node.type,
+              label: node.data.label,
+              content: node.data.content || '',
+            };
+            try {
+              const selectedNodes = getNodes().filter(n => n.selected);
+              await onNodesDelete(selectedNodes);
+              showToast(`Cut ${selectedNodes.length} node(s)`);
+            } catch (error) {
+              console.error('Failed to cut node:', error);
+            }
+          }
+        }
+      }
+
+      // Paste (Ctrl+V)
+      if (e.ctrlKey && e.key === 'v') {
+        if (clipboard.current) {
+          try {
+            const pos = { x: 100, y: 100 };
+            if (selectedNodeId) {
+              const lastNode = storeNodes.find(n => n.id === selectedNodeId);
+              if (lastNode) {
+                pos.x = lastNode.position.x + 40;
+                pos.y = lastNode.position.y + 40;
+              }
+            }
+
+            const createdNode = await nodeAPI.create({
+              graph_id: graphId,
+              type: clipboard.current.type,
+              label: `${clipboard.current.label} (copy)`,
+              content: clipboard.current.content,
+              x: pos.x,
+              y: pos.y,
+            });
+
+            const newNode = {
+              id: createdNode.id,
+              type: createdNode.type,
+              position: { x: createdNode.x, y: createdNode.y },
+              data: {
+                label: createdNode.label,
+                content: createdNode.content,
+              },
+            };
+
+            addNode(newNode);
+            selectNode(newNode.id);
+            showToast(`Pasted node`);
+          } catch (error) {
+            console.error('Failed to paste node:', error);
+          }
+        }
+      }
+      
+      // Delete (Delete key)
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const selectedNodes = getNodes().filter(n => n.selected);
+        const selectedEdges = getEdges().filter(e => e.selected);
+        if ((selectedNodes.length > 0 || selectedEdges.length > 0) && !e.ctrlKey) {
+          handleDeleteNode();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [addNode, selectNode, showToast, getNodes, getEdges, onNodesDelete, onEdgesDelete]);
 
   return (
     <div
@@ -270,6 +397,9 @@ const GraphCanvasContent: React.FC = () => {
           setContextMenu(null);
         }}
         connectionMode={ConnectionMode.Loose}
+        selectionOnDrag={false}
+        selectionKeyCode="Shift"
+        panOnDrag={true}
         fitView
       >
         <Background />
@@ -286,6 +416,16 @@ const GraphCanvasContent: React.FC = () => {
               orient="auto"
             >
               <polygon points="0 0, 10 3.5, 0 7" fill="#999" />
+            </marker>
+            <marker
+              id="arrowhead-start"
+              markerWidth="10"
+              markerHeight="7"
+              refX="1"
+              refY="3.5"
+              orient="auto"
+            >
+              <polygon points="10 0, 0 3.5, 10 7" fill="#999" />
             </marker>
           </defs>
         </svg>
