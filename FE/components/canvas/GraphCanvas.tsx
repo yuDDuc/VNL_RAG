@@ -39,7 +39,6 @@ const GraphCanvasContent: React.FC = () => {
     addEdge: addStoreEdge,
     selectNode,
     selectEdge,
-    updateNode,
     updateNodes,
     selectedNodeId,
     selectedEdgeId,
