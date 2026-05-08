@@ -16,17 +16,15 @@ Cập nhật hệ thống:
 sudo apt update && sudo apt upgrade -y
 ```
 
-Cài đặt Node.js (v24+) và npm thông qua NVM:
+Cài đặt Node.js (v24+) và npm:
 ```bash
-# Tải và cài đặt nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+# Xóa bản cũ nếu có
+sudo apt remove -y nodejs npm
+sudo apt autoremove -y
 
-# Kích hoạt nvm ngay lập tức
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-# Cài đặt Node.js bản 24
-nvm install 24
+# Cài đặt từ NodeSource (Bản 24)
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+sudo apt install -y nodejs
 
 # Kiểm tra phiên bản
 node -v
