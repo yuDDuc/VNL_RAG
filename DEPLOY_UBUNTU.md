@@ -16,9 +16,9 @@ Cập nhật hệ thống:
 sudo apt update && sudo apt upgrade -y
 ```
 
-Cài đặt Node.js (v18+) và npm:
+Cài đặt Node.js (v24+) và npm:
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 
