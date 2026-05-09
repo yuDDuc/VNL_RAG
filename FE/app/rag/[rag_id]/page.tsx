@@ -14,9 +14,11 @@ import 'reactflow/dist/style.css';
 import { graphAPI, nodeAPI } from '../../../lib/api';
 import RAGSettingsPanel from '../../../components/rag/RAGSettingsPanel';
 import ChunkNode from '../../../components/rag/ChunkNode';
+import TextNode from '../../../components/rag/TextNode';
 
 const nodeTypes = {
   chunk: ChunkNode,
+  text: TextNode,
 };
 
 export default function RAGWorkspace() {
@@ -43,17 +45,29 @@ export default function RAGWorkspace() {
       }
       
       // Load nodes (chunks)
-      const initialNodes = data.nodes.map((n: any) => ({
-        id: n.id,
-        type: 'chunk',
-        position: { x: n.x, y: n.y },
-        data: { 
-          label: n.label,
-          content: n.content,
-          width: n.width || 200,
-          height: n.height || 25
+      const docText = data.content || 'Nội dung văn bản sẽ hiển thị ở đây...';
+      const initialNodes = [
+        {
+          id: 'document-text',
+          type: 'text',
+          position: { x: 50, y: 50 },
+          data: { content: docText },
+          draggable: false,
+          selectable: false,
+          zIndex: -1,
         },
-      }));
+        ...data.nodes.map((n: any) => ({
+          id: n.id,
+          type: 'chunk',
+          position: { x: n.x, y: n.y },
+          data: { 
+            label: n.label,
+            content: n.content,
+            width: n.width || 200,
+            height: n.height || 25
+          },
+        }))
+      ];
       setNodes(initialNodes);
     } catch (error) {
       console.error('Failed to fetch RAG plan:', error);
@@ -96,10 +110,16 @@ export default function RAGWorkspace() {
     try {
       await graphAPI.update(rag_id as string, { content: newContent });
       setText(newContent);
+      setNodes((nds) => 
+        nds.map(n => n.id === 'document-text' 
+          ? { ...n, data: { ...n.data, content: newContent } } 
+          : n
+        )
+      );
     } catch (error) {
       console.error('Failed to upload text:', error);
     }
-  }, [rag_id]);
+  }, [rag_id, setNodes]);
 
   if (isLoading) return <div style={{ padding: 20 }}>Loading RAG Workspace...</div>;
 
@@ -128,27 +148,7 @@ export default function RAGWorkspace() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Main Content Area */}
         <div style={{ flex: 1, position: 'relative', backgroundColor: '#fafafa' }}>
-          {/* Text Background Container */}
-          <div style={{ 
-            position: 'absolute', 
-            top: 50, 
-            left: 50, 
-            right: 50, 
-            bottom: 50,
-            padding: '40px',
-            backgroundColor: 'white',
-            boxShadow: '0 0 10px rgba(0,0,0,0.05)',
-            overflow: 'auto',
-            fontSize: '16px',
-            lineHeight: '1.6',
-            color: '#333',
-            whiteSpace: 'pre-wrap',
-            zIndex: 0
-          }}>
-            {text}
-          </div>
-
-          {/* React Flow Overlay for Bounding Boxes */}
+          {/* React Flow Overlay for Document and Bounding Boxes */}
           <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
             <ReactFlow
               nodes={nodes}
@@ -156,6 +156,10 @@ export default function RAGWorkspace() {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               nodeTypes={nodeTypes}
+              panOnScroll={true}
+              zoomOnScroll={false}
+              panOnDrag={[1, 2]} // middle/right click to pan
+              selectionOnDrag={true} // allow selecting text with left click
               fitView
               style={{ background: 'transparent' }}
             >
