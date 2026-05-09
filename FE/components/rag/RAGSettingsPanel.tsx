@@ -4,19 +4,86 @@ import React, { useState } from 'react';
 
 interface RAGSettingsPanelProps {
   onAddChunk?: () => void;
+  onUploadText?: (text: string) => void;
 }
 
-export default function RAGSettingsPanel({ onAddChunk }: RAGSettingsPanelProps) {
+export default function RAGSettingsPanel({ onAddChunk, onUploadText }: RAGSettingsPanelProps) {
   const [params, setParams] = useState({
     chunkSize: 500,
     chunkOverlap: 50,
     model: 'gpt-4o',
     embedding: 'text-embedding-3-small'
   });
+  const [tempText, setTempText] = useState('');
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (onUploadText) onUploadText(content);
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <div style={{ padding: '20px' }}>
-      <h3 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Model Options</h3>
+      <h3 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '10px' }}>RAG Settings</h3>
+
+      {/* Document Source Section */}
+      <div style={{ marginBottom: '30px', backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '8px' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '10px' }}>📂 Document Source</label>
+        
+        <div style={{ marginBottom: '15px' }}>
+          <span style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '5px' }}>Upload .txt file</span>
+          <input 
+            type="file" 
+            accept=".txt" 
+            onChange={handleFileUpload}
+            style={{ fontSize: '12px', width: '100%' }}
+          />
+        </div>
+
+        <div>
+          <span style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '5px' }}>Or paste text</span>
+          <textarea 
+            value={tempText}
+            onChange={(e) => setTempText(e.target.value)}
+            placeholder="Paste text here..."
+            style={{ 
+              width: '100%', 
+              height: '80px', 
+              padding: '8px', 
+              fontSize: '12px', 
+              border: '1px solid #ddd', 
+              borderRadius: '4px',
+              marginBottom: '10px'
+            }}
+          />
+          <button 
+            onClick={() => {
+              if (tempText.trim() && onUploadText) {
+                onUploadText(tempText);
+                setTempText('');
+              }
+            }}
+            style={{
+              width: '100%',
+              padding: '6px',
+              backgroundColor: '#2196F3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            Update Text
+          </button>
+        </div>
+      </div>
       
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>Chunking Params</label>

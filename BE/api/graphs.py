@@ -46,12 +46,14 @@ class GraphCreateSchema(BaseModel):
     name: str
     description: Optional[str] = None
     type: str = "legal"  # "legal" or "rag"
+    content: Optional[str] = None
     custom_relation_types: Optional[List[str]] = []
 
 class GraphUpdateSchema(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     type: Optional[str] = None
+    content: Optional[str] = None
     custom_relation_types: Optional[List[str]] = None
 
 class GraphDetailSchema(BaseModel):
@@ -59,6 +61,7 @@ class GraphDetailSchema(BaseModel):
     name: str
     description: Optional[str] = None
     type: str = "legal"
+    content: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     nodes: List[LegalNodeSchema] = []
@@ -98,6 +101,7 @@ def create_graph(data: GraphCreateSchema):
         "name": data.name,
         "description": data.description,
         "type": data.type,
+        "content": data.content,
         "custom_relation_types": data.custom_relation_types or [],
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
@@ -134,6 +138,8 @@ def update_graph(graph_id: str, data: GraphUpdateSchema):
         graph["description"] = data.description
     if data.type is not None:
         graph["type"] = data.type
+    if data.content is not None:
+        graph["content"] = data.content
     if data.custom_relation_types is not None:
         graph["custom_relation_types"] = data.custom_relation_types
     graph["updated_at"] = datetime.utcnow().isoformat()

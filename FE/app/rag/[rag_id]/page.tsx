@@ -38,6 +38,9 @@ export default function RAGWorkspace() {
       setIsLoading(true);
       const data = await graphAPI.getOne(rag_id as string);
       setRagPlan(data);
+      if (data.content) {
+        setText(data.content);
+      }
       
       // Load nodes (chunks)
       const initialNodes = data.nodes.map((n: any) => ({
@@ -87,6 +90,16 @@ export default function RAGWorkspace() {
       console.error('Failed to add chunk:', error);
     }
   }, [rag_id, nodes, setNodes]);
+
+  const onUploadText = React.useCallback(async (newContent: string) => {
+    if (!rag_id) return;
+    try {
+      await graphAPI.update(rag_id as string, { content: newContent });
+      setText(newContent);
+    } catch (error) {
+      console.error('Failed to upload text:', error);
+    }
+  }, [rag_id]);
 
   if (isLoading) return <div style={{ padding: 20 }}>Loading RAG Workspace...</div>;
 
@@ -157,7 +170,7 @@ export default function RAGWorkspace() {
 
         {/* Right Sidebar: Settings */}
         <div style={{ width: '350px', borderLeft: '1px solid #ddd', backgroundColor: 'white', overflowY: 'auto' }}>
-          <RAGSettingsPanel onAddChunk={onAddChunk} />
+          <RAGSettingsPanel onAddChunk={onAddChunk} onUploadText={onUploadText} />
         </div>
       </div>
     </div>
