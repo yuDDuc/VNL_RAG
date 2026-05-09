@@ -26,22 +26,6 @@ const ChunkNode: React.FC<NodeProps> = ({ id, data, selected }) => {
         minHeight={20}
         handleStyle={{ width: 8, height: 8, background: '#2196F3' }}
       />
-      
-      {/* Label/ID Badge */}
-      <div style={{
-        position: 'absolute',
-        top: '-15px',
-        left: '-1px',
-        backgroundColor: '#2196F3',
-        color: 'white',
-        fontSize: '9px',
-        padding: '1px 4px',
-        borderRadius: '2px 2px 0 0',
-        fontWeight: 'bold',
-        whiteSpace: 'nowrap'
-      }}>
-        {data.label || `Chunk ${id.slice(0, 4)}`}
-      </div>
     </div>
   );
 };
