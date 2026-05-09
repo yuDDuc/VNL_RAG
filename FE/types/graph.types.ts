@@ -6,6 +6,8 @@ export interface LegalNode {
     label: string;
     content?: string;
     size?: number; // Kích thước hình tròn (mặc định 80)
+    width?: number;
+    height?: number;
   };
 }
 

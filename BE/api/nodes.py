@@ -13,6 +13,8 @@ class NodeCreateSchema(BaseModel):
     content: Optional[str] = None
     x: float = 0
     y: float = 0
+    width: Optional[float] = None
+    height: Optional[float] = None
 
 class NodeUpdateSchema(BaseModel):
     type: Optional[str] = None
@@ -20,6 +22,8 @@ class NodeUpdateSchema(BaseModel):
     content: Optional[str] = None
     x: Optional[float] = None
     y: Optional[float] = None
+    width: Optional[float] = None
+    height: Optional[float] = None
 
 from db.storage import storage
 
@@ -35,6 +39,8 @@ def create_node(data: NodeCreateSchema):
         "content": data.content,
         "x": data.x,
         "y": data.y,
+        "width": data.width,
+        "height": data.height,
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
     }
@@ -68,6 +74,10 @@ def update_node(node_id: str, data: NodeUpdateSchema):
         node["x"] = data.x
     if data.y is not None:
         node["y"] = data.y
+    if data.width is not None:
+        node["width"] = data.width
+    if data.height is not None:
+        node["height"] = data.height
     node["updated_at"] = datetime.utcnow().isoformat()
     
     storage.save_node(node_id, node)

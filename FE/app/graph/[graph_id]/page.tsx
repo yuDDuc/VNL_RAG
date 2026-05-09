@@ -42,6 +42,8 @@ export default function GraphPage() {
           data: {
             label: n.label,
             content: n.content,
+            width: n.width,
+            height: n.height,
           },
         }));
 

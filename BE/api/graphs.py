@@ -19,6 +19,8 @@ class LegalNodeSchema(BaseModel):
     content: Optional[str] = None
     x: float
     y: float
+    width: Optional[float] = None
+    height: Optional[float] = None
 
     class Config:
         from_attributes = True

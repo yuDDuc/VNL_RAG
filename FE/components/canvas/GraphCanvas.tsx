@@ -18,6 +18,7 @@ import { nodeAPI, edgeAPI } from '../../lib/api';
 import LegalNodeComponent from './LegalNode';
 import CustomNodeComponent from './CustomNode';
 import TableNodeComponent from './TableNode';
+import StickyNoteComponent from './StickyNote';
 import LegalEdge from './LegalEdge';
 import ContextMenu from './ContextMenu';
 
@@ -25,6 +26,7 @@ const nodeTypes = {
   legalNode: LegalNodeComponent,
   customNode: CustomNodeComponent,
   tableNode: TableNodeComponent,
+  stickyNote: StickyNoteComponent,
 };
 
 const edgeTypes = {
@@ -62,7 +64,7 @@ const GraphCanvasContent: React.FC = () => {
           id: node.id,
           data: { ...node.data, type: node.type },
           position: node.position,
-          type: (node.type === 'table' || node.type === 'table2d') ? 'tableNode' : 'legalNode',
+          type: node.type === 'stickyNote' ? 'stickyNote' : (node.type === 'table' || node.type === 'table2d') ? 'tableNode' : 'legalNode',
           selected: node.id === selectedNodeId || (existing ? existing.selected : false),
         };
       });

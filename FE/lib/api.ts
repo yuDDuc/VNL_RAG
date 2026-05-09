@@ -13,8 +13,10 @@ export interface NodeDTO {
   type: string;
   label: string;
   content?: string;
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface EdgeDTO {
