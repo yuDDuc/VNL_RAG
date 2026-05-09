@@ -36,7 +36,7 @@ export default function RAGWorkspace() {
   const fetchRAGPlan = async () => {
     try {
       setIsLoading(true);
-      const data = await graphAPI.get(rag_id as string);
+      const data = await graphAPI.getOne(rag_id as string);
       setRagPlan(data);
       
       // Load nodes (chunks)
