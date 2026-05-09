@@ -414,7 +414,7 @@ const GraphCanvasContent: React.FC = () => {
               refY="3.5"
               orient="auto"
             >
-              <polygon points="0 0, 10 3.5, 0 7" fill="#999" />
+              <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
             </marker>
             <marker
               id="arrowhead-start"
@@ -424,7 +424,7 @@ const GraphCanvasContent: React.FC = () => {
               refY="3.5"
               orient="auto"
             >
-              <polygon points="10 0, 0 3.5, 10 7" fill="#999" />
+              <polygon points="10 0, 0 3.5, 10 7" fill="currentColor" />
             </marker>
           </defs>
         </svg>

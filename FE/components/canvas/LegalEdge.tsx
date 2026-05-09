@@ -63,8 +63,8 @@ const LegalEdge: React.FC<EdgeProps> = ({
       <path
         id={id}
         d={edgePath}
-        stroke={selected ? color : '#999'}
-        strokeWidth={selected ? 3 : 1.5}
+        stroke={color}
+        strokeWidth={selected ? 3 : 2}
         fill="none"
         markerEnd="url(#arrowhead)"
         markerStart={isBidirectional ? "url(#arrowhead-start)" : "none"}
@@ -72,7 +72,8 @@ const LegalEdge: React.FC<EdgeProps> = ({
         style={{
           transition: 'all 0.2s ease',
           filter: selected ? `drop-shadow(0 0 5px ${color})` : 'none',
-          pointerEvents: 'none', // Path itself shouldn't capture events, let interaction path do it
+          pointerEvents: 'none',
+          color: color, // For markers using currentColor
         }}
       />
       {data?.label && (
