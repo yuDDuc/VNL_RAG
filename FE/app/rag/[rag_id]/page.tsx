@@ -51,7 +51,7 @@ export default function RAGWorkspace() {
           label: n.label,
           content: n.content,
           width: n.width || 200,
-          height: n.height || 100
+          height: n.height || 40
         },
       }));
       setNodes(initialNodes);
@@ -72,8 +72,8 @@ export default function RAGWorkspace() {
         label: `Chunk ${nodes.length + 1}`,
         x: 100,
         y: 100,
-        width: 300,
-        height: 150
+        width: 200,
+        height: 40
       });
 
       setNodes((nds) => nds.concat({

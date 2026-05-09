@@ -17,42 +17,30 @@ const ChunkNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
-      minWidth: '50px',
-      minHeight: '30px'
+      minWidth: '20px',
+      minHeight: '20px'
     }}>
       <NodeResizer 
         isVisible={selected} 
-        minWidth={50} 
-        minHeight={30}
+        minWidth={20} 
+        minHeight={20}
         handleStyle={{ width: 8, height: 8, background: '#2196F3' }}
       />
       
       {/* Label/ID Badge */}
       <div style={{
         position: 'absolute',
-        top: '-20px',
-        left: 0,
+        top: '-15px',
+        left: '-1px',
         backgroundColor: '#2196F3',
         color: 'white',
-        fontSize: '10px',
-        padding: '2px 6px',
-        borderRadius: '4px 4px 0 0',
-        fontWeight: 'bold'
+        fontSize: '9px',
+        padding: '1px 4px',
+        borderRadius: '2px 2px 0 0',
+        fontWeight: 'bold',
+        whiteSpace: 'nowrap'
       }}>
         {data.label || `Chunk ${id.slice(0, 4)}`}
-      </div>
-
-      {/* Content Preview (Optional) */}
-      <div style={{
-        padding: '10px',
-        fontSize: '11px',
-        color: '#2196F3',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        opacity: 0.8
-      }}>
-        {data.content?.substring(0, 50)}...
       </div>
     </div>
   );
