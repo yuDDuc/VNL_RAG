@@ -16,16 +16,46 @@ export default function RAGSettingsPanel({ onAddChunk, onUploadText }: RAGSettin
   });
   const [tempText, setTempText] = useState('');
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (onUploadText) onUploadText(content);
-    };
-    reader.readAsText(file);
+    // For txt files, read locally
+    if (file.name.toLowerCase().endsWith('.txt')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        if (onUploadText) onUploadText(content);
+      };
+      reader.readAsText(file);
+      return;
+    }
+
+    // For other files, send to backend
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      // Use the environment variable or default to localhost:8000
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/upload/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || 'Upload failed');
+      }
+
+      const data = await response.json();
+      if (onUploadText && data.content) {
+        onUploadText(data.content);
+      }
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      alert('Error extracting text: ' + error.message);
+    }
   };
 
   return (
@@ -37,10 +67,10 @@ export default function RAGSettingsPanel({ onAddChunk, onUploadText }: RAGSettin
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '10px' }}>📂 Document Source</label>
         
         <div style={{ marginBottom: '15px' }}>
-          <span style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '5px' }}>Upload .txt file</span>
+          <span style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '5px' }}>Upload file (.txt, .pdf, .docx, images)</span>
           <input 
             type="file" 
-            accept=".txt" 
+            accept=".txt,.pdf,.docx,.png,.jpg,.jpeg" 
             onChange={handleFileUpload}
             style={{ fontSize: '12px', width: '100%' }}
           />

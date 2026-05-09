@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api import graphs, nodes, edges
+from api import graphs, nodes, edges, upload
 
 app = FastAPI(
     title="Legal Graph API",
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(graphs.router, prefix="/api/graphs", tags=["Graphs"])
 app.include_router(nodes.router, prefix="/api/nodes", tags=["Nodes"])
 app.include_router(edges.router, prefix="/api/edges", tags=["Edges"])
+app.include_router(upload.router, prefix="/api/upload", tags=["Upload"])
 
 @app.get("/")
 def read_root():
