@@ -45,21 +45,25 @@ class LegalEdgeSchema(BaseModel):
 class GraphCreateSchema(BaseModel):
     name: str
     description: Optional[str] = None
+    type: str = "legal"  # "legal" or "rag"
     custom_relation_types: Optional[List[str]] = []
 
 class GraphUpdateSchema(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    type: Optional[str] = None
     custom_relation_types: Optional[List[str]] = None
 
 class GraphDetailSchema(BaseModel):
     id: str
     name: str
     description: Optional[str] = None
+    type: str = "legal"
     created_at: datetime
     updated_at: datetime
     nodes: List[LegalNodeSchema] = []
     edges: List[LegalEdgeSchema] = []
+    custom_relation_types: List[str] = []
 
     class Config:
         from_attributes = True
@@ -76,6 +80,7 @@ def get_all_graphs():
                 "id": g["id"],
                 "name": g.get("name"),
                 "description": g.get("description"),
+                "type": g.get("type", "legal"),
                 "created_at": g.get("created_at"),
                 "node_count": len(storage.get_nodes(g["id"])),
                 "edge_count": len(storage.get_edges(g["id"])),
@@ -92,6 +97,7 @@ def create_graph(data: GraphCreateSchema):
         "id": graph_id,
         "name": data.name,
         "description": data.description,
+        "type": data.type,
         "custom_relation_types": data.custom_relation_types or [],
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
@@ -126,6 +132,8 @@ def update_graph(graph_id: str, data: GraphUpdateSchema):
         graph["name"] = data.name
     if data.description is not None:
         graph["description"] = data.description
+    if data.type is not None:
+        graph["type"] = data.type
     if data.custom_relation_types is not None:
         graph["custom_relation_types"] = data.custom_relation_types
     graph["updated_at"] = datetime.utcnow().isoformat()

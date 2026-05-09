@@ -10,6 +10,7 @@ interface GraphListItem {
   id: string;
   name: string;
   description?: string;
+  type: 'legal' | 'rag';
   node_count: number;
   edge_count: number;
 }
@@ -18,6 +19,7 @@ export default function Home() {
   const [graphs, setGraphs] = useState<GraphListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newGraphName, setNewGraphName] = useState('');
+  const [newGraphType, setNewGraphType] = useState<'legal' | 'rag'>('legal');
   const [isCreating, setIsCreating] = useState(false);
   const { showToast } = useGraphStore();
 
@@ -39,7 +41,7 @@ export default function Home() {
 
   const handleCreateGraph = async () => {
     if (!newGraphName.trim()) {
-      showToast('Please enter a graph name', 'error');
+      showToast('Please enter a name', 'error');
       return;
     }
 
@@ -47,21 +49,23 @@ export default function Home() {
       setIsCreating(true);
       const newGraph = await graphAPI.create({
         name: newGraphName,
-        description: 'New legal graph',
+        description: newGraphType === 'legal' ? 'New legal graph' : 'New RAG plan',
+        type: newGraphType,
       });
       
       setNewGraphName('');
-      showToast('Graph created successfully!');
+      showToast(`${newGraphType === 'legal' ? 'Graph' : 'RAG Plan'} created successfully!`);
       
-      // Redirect to graph editor
+      // Redirect to appropriate editor
       if (typeof window !== 'undefined') {
         setTimeout(() => {
-          window.location.href = `/graph/${newGraph.id}`;
+          const path = newGraphType === 'legal' ? 'graph' : 'rag';
+          window.location.href = `/${path}/${newGraph.id}`;
         }, 1000);
       }
     } catch (error) {
-      console.error('Failed to create graph:', error);
-      showToast('Failed to create graph', 'error');
+      console.error('Failed to create:', error);
+      showToast('Failed to create', 'error');
     } finally {
       setIsCreating(false);
     }
@@ -119,27 +123,47 @@ export default function Home() {
           marginBottom: '30px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}>
-          <h2 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>Create New Graph</h2>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input
-              type="text"
-              value={newGraphName}
-              onChange={(e) => setNewGraphName(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleCreateGraph()}
-              placeholder="Enter graph name (e.g., Labor Law System)"
-              style={{
-                flex: 1,
-                padding: '10px 15px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '14px',
-              }}
-            />
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'flex-end' }}>
+            <div style={{ flex: 2, minWidth: '300px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', color: '#666' }}>Name</label>
+              <input
+                type="text"
+                value={newGraphName}
+                onChange={(e) => setNewGraphName(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleCreateGraph()}
+                placeholder="e.g., Labor Law System"
+                style={{
+                  width: '100%',
+                  padding: '10px 15px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: '150px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', color: '#666' }}>Type</label>
+              <select
+                value={newGraphType}
+                onChange={(e) => setNewGraphType(e.target.value as 'legal' | 'rag')}
+                style={{
+                  width: '100%',
+                  padding: '10px 15px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  backgroundColor: 'white',
+                }}
+              >
+                <option value="legal">Legal Graph</option>
+                <option value="rag">RAG Plan (Chunking)</option>
+              </select>
+            </div>
             <button
               onClick={handleCreateGraph}
               disabled={isCreating || !newGraphName.trim()}
               style={{
-                padding: '10px 20px',
+                padding: '10px 25px',
                 backgroundColor: '#4CAF50',
                 color: 'white',
                 border: 'none',
@@ -148,16 +172,17 @@ export default function Home() {
                 fontSize: '14px',
                 fontWeight: 'bold',
                 opacity: isCreating ? 0.6 : 1,
+                height: '42px',
               }}
             >
-              {isCreating ? 'Creating...' : 'Create Graph'}
+              {isCreating ? 'Creating...' : 'Create'}
             </button>
           </div>
         </div>
 
         {/* Graphs List */}
         <div>
-          <h2 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>Your Graphs</h2>
+          <h2 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>Your Plans & Graphs</h2>
           
           {isLoading ? (
             <div style={{
@@ -165,7 +190,7 @@ export default function Home() {
               padding: '40px',
               color: '#999',
             }}>
-              Loading graphs...
+              Loading...
             </div>
           ) : graphs.length === 0 ? (
             <div style={{
@@ -176,7 +201,7 @@ export default function Home() {
               color: '#999',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             }}>
-              <p>No graphs yet. Create one to get started!</p>
+              <p>No projects yet. Create one to get started!</p>
             </div>
           ) : (
             <div style={{
@@ -193,20 +218,30 @@ export default function Home() {
                     padding: '20px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     transition: 'box-shadow 0.2s ease',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    position: 'relative',
                   }}
                 >
+                  <div style={{
+                    position: 'absolute',
+                    top: '15px',
+                    right: '15px',
+                    fontSize: '10px',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    backgroundColor: graph.type === 'rag' ? '#E1F5FE' : '#E8F5E9',
+                    color: graph.type === 'rag' ? '#0288D1' : '#2E7D32',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                  }}>
+                    {graph.type || 'legal'}
+                  </div>
+
                   <h3 style={{
                     margin: '0 0 10px 0',
                     fontSize: '16px',
                     fontWeight: 'bold',
                     color: '#2196F3',
+                    paddingRight: '60px',
                   }}>
                     {graph.name}
                   </h3>
@@ -228,8 +263,14 @@ export default function Home() {
                     borderBottom: '1px solid #eee',
                     paddingBottom: '10px',
                   }}>
-                    <span>📌 Nodes: {graph.node_count}</span>
-                    <span>🔗 Edges: {graph.edge_count}</span>
+                    {graph.type === 'rag' ? (
+                      <span>📄 Chunks: {graph.node_count}</span>
+                    ) : (
+                      <>
+                        <span>📌 Nodes: {graph.node_count}</span>
+                        <span>🔗 Edges: {graph.edge_count}</span>
+                      </>
+                    )}
                   </div>
 
                   <div style={{
@@ -237,7 +278,7 @@ export default function Home() {
                     gap: '10px',
                   }}>
                     <Link
-                      href={`/graph/${graph.id}`}
+                      href={`/${graph.type === 'rag' ? 'rag' : 'graph'}/${graph.id}`}
                       style={{
                         flex: 1,
                         padding: '8px 12px',
@@ -250,7 +291,7 @@ export default function Home() {
                         fontWeight: 'bold',
                       }}
                     >
-                      Edit
+                      Open {graph.type === 'rag' ? 'RAG' : 'Graph'}
                     </Link>
                     <button
                       onClick={(e) => {

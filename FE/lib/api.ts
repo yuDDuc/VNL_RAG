@@ -4,6 +4,7 @@ export interface GraphDTO {
   id?: string;
   name: string;
   description?: string;
+  type?: 'legal' | 'rag';
   custom_relation_types?: string[];
 }
 
