@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { LegalNode, LegalEdge, LegalGraph } from '../types/graph.types';
+import { LegalNode, LegalEdge } from '../types/graph.types';
 import { useHistoryStore } from './historyStore';
 
 interface GraphState {
@@ -158,7 +158,7 @@ export const useGraphStore = create<GraphState>((set) => ({
 
   selectEdge: (id) => set({ selectedEdgeId: id, selectedNodeId: null }),
 
-  setNodesAndEdges: (nodes, edges) => set((state) => {
+  setNodesAndEdges: (nodes, edges) => set(() => {
     useHistoryStore.getState().saveState(nodes, edges);
     return { nodes, edges };
   }),

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGraphStore } from '../../stores/graphStore';
-import { nodeAPI, edgeAPI } from '../../lib/api';
+import { nodeAPI, edgeAPI, graphAPI } from '../../lib/api';
 
 const RELATION_TYPES = ['2 way', 'buffer', 'sửa đổi', 'bổ sung', 'bãi bỏ', 'hợp nhất', 'liên quan', 'tùy chỉnh'];
 
@@ -13,7 +13,6 @@ const NodeDetailPanel: React.FC = () => {
     updateNode,
     updateEdge,
     deleteNode,
-    deleteEdge,
     deleteEdge,
     showToast,
     customRelationTypes,
