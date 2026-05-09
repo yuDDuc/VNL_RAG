@@ -4,6 +4,7 @@ export interface GraphDTO {
   id?: string;
   name: string;
   description?: string;
+  custom_relation_types?: string[];
 }
 
 export interface NodeDTO {
@@ -24,6 +25,8 @@ export interface EdgeDTO {
   relation_type: string;
   source_handle?: string;
   target_handle?: string;
+  color?: string;
+  content?: string;
 }
 
 // Graph APIs

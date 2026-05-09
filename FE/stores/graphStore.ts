@@ -9,10 +9,12 @@ interface GraphState {
   edges: LegalEdge[];
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
+  customRelationTypes: string[];
   
   // Graph operations
-  setGraph: (id: string, name: string, nodes: LegalNode[], edges: LegalEdge[]) => void;
+  setGraph: (id: string, name: string, nodes: LegalNode[], edges: LegalEdge[], customRelationTypes?: string[]) => void;
   setGraphName: (name: string) => void;
+  addCustomRelationType: (type: string) => void;
   clearGraph: () => void;
   
   // Node operations
@@ -47,6 +49,7 @@ export const useGraphStore = create<GraphState>((set) => ({
   edges: [],
   selectedNodeId: null,
   selectedEdgeId: null,
+  customRelationTypes: [],
   toast: null,
   viewMode: 'canvas',
 
@@ -57,14 +60,20 @@ export const useGraphStore = create<GraphState>((set) => ({
     setTimeout(() => set({ toast: null }), 3000);
   },
 
-  setGraph: (id, name, nodes, edges) => set({
+  setGraph: (id, name, nodes, edges, customRelationTypes = []) => set({
     graphId: id,
     graphName: name,
     nodes,
     edges,
+    customRelationTypes,
   }),
 
   setGraphName: (name) => set({ graphName: name }),
+
+  addCustomRelationType: (type) => set((state) => {
+    if (state.customRelationTypes.includes(type)) return state;
+    return { customRelationTypes: [...state.customRelationTypes, type] };
+  }),
 
   clearGraph: () => set({
     graphId: null,

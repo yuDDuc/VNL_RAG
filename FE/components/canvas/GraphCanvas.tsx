@@ -80,7 +80,7 @@ const GraphCanvasContent: React.FC = () => {
           sourceHandle: edge.sourceHandle,
           targetHandle: edge.targetHandle,
           label: edge.label,
-          data: { label: edge.label },
+          data: { label: edge.label, color: edge.color, content: edge.content },
           type: 'legalEdge',
           selected: edge.id === selectedEdgeId || (existing ? existing.selected : false),
         };

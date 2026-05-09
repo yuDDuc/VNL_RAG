@@ -14,8 +14,26 @@ const NodeDetailPanel: React.FC = () => {
     updateEdge,
     deleteNode,
     deleteEdge,
-    showToast
+    deleteEdge,
+    showToast,
+    customRelationTypes,
+    addCustomRelationType,
+    graphId
   } = useGraphStore();
+
+  const handleAddPreset = async () => {
+    if (edgeLabel && graphId) {
+      addCustomRelationType(edgeLabel);
+      try {
+        await graphAPI.update(graphId, {
+          custom_relation_types: [...customRelationTypes, edgeLabel]
+        });
+        showToast('Preset added successfully');
+      } catch (error) {
+        console.error('Failed to save preset:', error);
+      }
+    }
+  };
 
   const selectedNode = selectedNodeId ? nodes.find(n => n.id === selectedNodeId) : null;
   const selectedEdge = selectedEdgeId ? edges.find(e => e.id === selectedEdgeId) : null;
@@ -73,6 +91,8 @@ const NodeDetailPanel: React.FC = () => {
   };
 
   const [edgeLabel, setEdgeLabel] = useState(selectedEdge?.label || '');
+  const [edgeColor, setEdgeColor] = useState(selectedEdge?.color || '#b1b1b7');
+  const [edgeContent, setEdgeContent] = useState(selectedEdge?.content || '');
 
   const handleSaveNode = async () => {
     if (selectedNodeId) {
@@ -104,10 +124,14 @@ const NodeDetailPanel: React.FC = () => {
       try {
         await edgeAPI.update(selectedEdgeId, {
           relation_type: edgeLabel,
+          color: edgeColor,
+          content: edgeContent,
         });
 
         updateEdge(selectedEdgeId, {
           label: edgeLabel,
+          color: edgeColor,
+          content: edgeContent,
         });
         showToast('Edge saved successfully');
       } catch (error) {
@@ -163,6 +187,8 @@ const NodeDetailPanel: React.FC = () => {
   React.useEffect(() => {
     if (selectedEdge) {
       setEdgeLabel(selectedEdge.label || '');
+      setEdgeColor(selectedEdge.color || '#b1b1b7');
+      setEdgeContent(selectedEdge.content || '');
     }
   }, [selectedEdge]);
 
@@ -412,7 +438,7 @@ const NodeDetailPanel: React.FC = () => {
                 }}
               />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                {RELATION_TYPES.map(type => (
+                {[...RELATION_TYPES, ...customRelationTypes].map(type => (
                   <button
                     key={type}
                     onClick={() => setEdgeLabel(type)}
@@ -429,8 +455,95 @@ const NodeDetailPanel: React.FC = () => {
                     {type}
                   </button>
                 ))}
+                {!RELATION_TYPES.includes(edgeLabel) && !customRelationTypes.includes(edgeLabel) && edgeLabel.trim() !== '' && (
+                  <button
+                    onClick={handleAddPreset}
+                    style={{
+                      fontSize: '10px',
+                      padding: '2px 6px',
+                      borderRadius: '10px',
+                      border: '1px solid #4CAF50',
+                      backgroundColor: 'white',
+                      color: '#4CAF50',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    + Add to Presets
+                  </button>
+                )}
               </div>
             </div>
+          </div>
+
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold' }}>
+              Line Color
+            </label>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input
+                type="color"
+                value={edgeColor}
+                onChange={(e) => setEdgeColor(e.target.value)}
+                style={{
+                  width: '40px',
+                  height: '30px',
+                  padding: '0',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              />
+              <input
+                type="text"
+                value={edgeColor}
+                onChange={(e) => setEdgeColor(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '5px 8px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '5px', marginTop: '8px' }}>
+              {['#b1b1b7', '#f44336', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#000000'].map(c => (
+                <div
+                  key={c}
+                  onClick={() => setEdgeColor(c)}
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    backgroundColor: c,
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    border: edgeColor === c ? '2px solid #333' : '1px solid #ddd',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: 'bold' }}>
+              Notes / Remarks
+            </label>
+            <textarea
+              value={edgeContent}
+              onChange={(e) => setEdgeContent(e.target.value)}
+              placeholder="Edge notes..."
+              style={{
+                width: '100%',
+                height: '80px',
+                padding: '8px',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                fontSize: '13px',
+                boxSizing: 'border-box',
+                resize: 'vertical',
+              }}
+            />
           </div>
 
           <div style={{

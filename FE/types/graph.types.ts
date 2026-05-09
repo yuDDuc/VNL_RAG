@@ -17,6 +17,8 @@ export interface LegalEdge {
   targetHandle?: string | null;
   label?: string; // 'reference', 'amend', 'replace', etc.
   type?: string;
+  color?: string;
+  content?: string;
 }
 
 export interface LegalGraph {

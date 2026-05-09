@@ -15,11 +15,16 @@ class EdgeCreateSchema(BaseModel):
     relation_type: str
     source_handle: Optional[str] = None
     target_handle: Optional[str] = None
+    color: Optional[str] = None
+    content: Optional[str] = None
+
 
 class EdgeUpdateSchema(BaseModel):
     relation_type: Optional[str] = None
     source_handle: Optional[str] = None
     target_handle: Optional[str] = None
+    color: Optional[str] = None
+    content: Optional[str] = None
 
 @router.post("/")
 def create_edge(data: EdgeCreateSchema):
@@ -33,6 +38,8 @@ def create_edge(data: EdgeCreateSchema):
         "relation_type": data.relation_type,
         "source_handle": data.source_handle,
         "target_handle": data.target_handle,
+        "color": data.color,
+        "content": data.content,
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
     }
@@ -62,6 +69,10 @@ def update_edge(edge_id: str, data: EdgeUpdateSchema):
         edge["source_handle"] = data.source_handle
     if data.target_handle is not None:
         edge["target_handle"] = data.target_handle
+    if data.color is not None:
+        edge["color"] = data.color
+    if data.content is not None:
+        edge["content"] = data.content
     edge["updated_at"] = datetime.utcnow().isoformat()
     
     storage.save_edge(edge_id, edge)

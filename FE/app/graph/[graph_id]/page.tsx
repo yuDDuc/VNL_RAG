@@ -52,9 +52,11 @@ export default function GraphPage() {
           label: e.relation_type,
           sourceHandle: e.source_handle,
           targetHandle: e.target_handle,
+          color: e.color,
+          content: e.content,
         }));
 
-        setGraph(graphId, data.name, nodes, edges);
+        setGraph(graphId, data.name, nodes, edges, data.custom_relation_types);
         setError(null);
       } catch (err) {
         console.error('Failed to load graph:', err);

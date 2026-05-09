@@ -47,7 +47,7 @@ const LegalEdge: React.FC<EdgeProps> = ({
     'tùy chỉnh': '#607D8B',
   };
 
-  const color = data?.label ? relationColors[data.label] || '#757575' : '#757575';
+  const color = data?.color || (data?.label ? relationColors[data.label] || '#757575' : '#757575');
   const isBidirectional = data?.label === '2 way';
 
   return (

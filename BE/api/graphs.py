@@ -34,6 +34,8 @@ class LegalEdgeSchema(BaseModel):
     relation_type: str
     source_handle: Optional[str] = None
     target_handle: Optional[str] = None
+    color: Optional[str] = None
+    content: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -41,10 +43,12 @@ class LegalEdgeSchema(BaseModel):
 class GraphCreateSchema(BaseModel):
     name: str
     description: Optional[str] = None
+    custom_relation_types: Optional[List[str]] = []
 
 class GraphUpdateSchema(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    custom_relation_types: Optional[List[str]] = None
 
 class GraphDetailSchema(BaseModel):
     id: str
@@ -86,6 +90,7 @@ def create_graph(data: GraphCreateSchema):
         "id": graph_id,
         "name": data.name,
         "description": data.description,
+        "custom_relation_types": data.custom_relation_types or [],
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
     }
@@ -119,6 +124,8 @@ def update_graph(graph_id: str, data: GraphUpdateSchema):
         graph["name"] = data.name
     if data.description is not None:
         graph["description"] = data.description
+    if data.custom_relation_types is not None:
+        graph["custom_relation_types"] = data.custom_relation_types
     graph["updated_at"] = datetime.utcnow().isoformat()
     
     storage.save_graph(graph_id, graph)
