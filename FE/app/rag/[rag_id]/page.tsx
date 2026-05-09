@@ -51,7 +51,7 @@ export default function RAGWorkspace() {
           label: n.label,
           content: n.content,
           width: n.width || 200,
-          height: n.height || 40
+          height: n.height || 25
         },
       }));
       setNodes(initialNodes);
@@ -73,7 +73,7 @@ export default function RAGWorkspace() {
         x: 100,
         y: 100,
         width: 200,
-        height: 40
+        height: 25
       });
 
       setNodes((nds) => nds.concat({
